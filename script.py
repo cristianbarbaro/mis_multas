@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 import sys
 import json
 from pprint import pprint
+import sqlite3
+import database
 
 
 urllib3.disable_warnings()
@@ -70,7 +72,22 @@ def get_actas_pba(dominio):
     
     return result
 
-print("CIUDAD DE BUENOS AIRES: ")
-pprint(get_actas_caba(dominio))
-print("PROVINCIA DE BUENOS AIRES: ")
-pprint(get_actas_pba(dominio))
+
+def run(dominio):
+    result = get_actas_pba(dominio)
+    new = []
+
+    if 'actas' in result.keys():
+        for acta in result['actas']:
+            if not database.get_data(acta['id']):
+                database.insert_data(acta)
+                new.append(acta)
+
+    if len(new) > 0:
+        result['actas_nuevas'] = new
+    # retorna las multas obtenidas por la api y las multas nuevas, si existen.
+    # de esta manera las multas se van almacenando en la base de datos.
+    return result
+
+
+print(run(dominio))
