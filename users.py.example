@@ -1,0 +1,4 @@
+users = {
+    "ABC123": "abc123@gmail.com",
+    "AB123CD": "ab123cd@outlook.com",
+}

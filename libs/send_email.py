@@ -1,32 +1,29 @@
+import json
 import smtplib
 
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from datetime import datetime
 
-def send_email():
-    TO = 'user@gmail.com'
-    SUBJECT = 'Multas'
-    TEXT = 'Texto.'
 
-    # Gmail Sign In
-    gmail_sender = 'username@gmail.com'
-    gmail_passwd = 'xxxx'
+def send_email(recipient, sender, passwd, subject, text, data):
+    msg = MIMEMultipart('alternative')
+    msg['From'] = sender
+    msg['To'] = recipient
+    msg['Subject'] = subject
 
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.ehlo()
+    body = text
+    msg.attach(MIMEText(body, 'plain'))
+
+    attachment = MIMEText(json.dumps(data))
+    attachment.add_header('Content-Disposition', 'attachment', 
+                          filename="multas.json")
+    msg.attach(attachment)
+
+    server = smtplib.SMTP('smtp-mail.outlook.com', 587)
     server.starttls()
-    server.login(gmail_sender, gmail_passwd)
-
-    BODY = '\r\n'.join(['To: %s' % TO,
-                        'From: %s' % gmail_sender,
-                        'Subject: %s' % SUBJECT,
-                        '', TEXT])
-
-    try:
-        server.sendmail(gmail_sender, [TO], BODY)
-        print ('email sent')
-    except:
-        print ('error sending mail')
-
+    server.login(sender, passwd)
+    server.send_message(msg)
     server.quit()
 
-
-send_email()
+    return 0
